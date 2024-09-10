@@ -63,6 +63,13 @@ async function addTodo(todo) {
     return todos[todos.length - 1];
 }
 
+async function deleteTodo(id) {
+    const todos = await readTodoFile();
+    const newTodos = todos.filter((todo) => todo.id !== id);
+    await writeTodoFile(newTodos);
+    return todos.length === newTodos.length;
+}
+
 const app = express();
 const port = 3000;
 
@@ -96,6 +103,13 @@ app.put("/todos/:id", async (req, res) => {
     updatedTodo
         ? res.json(updatedTodo)
         : res.status(404).json({ error: `Todo ID: ${id} Not Found` });
+});
+
+app.delete("/todos/:id", (req, res) => {
+    const id = req.params.id;
+    deleteTodo(id)
+        ? res.json({ Message: `Successfully deleted todo with ID: ${id}` })
+        : res.status(404).json({ Error: `Not Found Todo with ID: ${id}` });
 });
 
 app.listen(port, () => {
